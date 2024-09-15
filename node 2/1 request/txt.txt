@@ -1,0 +1,3 @@
+require() this node the part of core js this is functionality of  node  js
+
+this function just take code execute that and return that so we can use it else where

@@ -1,0 +1,232 @@
+as borwser has window object like that node has process object and it contain info about the current process
+
+first open node rapal by writing node and then write process
+
+in process object it contain argv:['/usr/local/bin/node']
+this is the path on the node executable is located
+
+but what is the purpose of having argv
+
+if you write node process you will goes to official website
+of node js
+
+but when you run your code by writing node server.js and if
+after that you will write any thing as argument like
+node server.js -i so here -i is input for your script and inside script you can access that by process.argv[2]
+but remember that argument starts form 2 index only
+
+
+v8 is chrome official js engine when they made it public
+ran donal have taken advantage and create node runtime 
+around chrome v8 engine now we have deno also as js runtime 
+
+as we have window object in browser node has global
+
+so here we can write global.process.argv
+but as like window object we do not need to specify global
+
+window    global
+document  process
+history   module
+location  __filename __dirname
+navigator require()
+
+to get the all the globals go through node document in global section
+
+
+v8 let node run js 
+runtime (v8 and wrapper that rand donal have create) 
+
+but what if when try to get arugument to our node proves
+or we try to read and write file on our system all these things that node can do our browser can not 
+------------------------------------------------
+let see now node js runtime inside
+first we have v8 engine that all us to to do 4+4 any opration
+second node js apis or additional functions that allow use to do thins like 
+1) fs that talk to file system to read write files
+2) http makes http request
+3) path that give us path
+4) crypto that make our data secure by encrypting so data for us
+
+now v8 see some code that uses these feture so it say i need help to read file so it call the above fictionality
+and some of them are written in js and others in c and that way node.bindings comes in, 
+
+so first when you run your code it will goes to v8 that call node.api and through node.bindings it passes it to libuv which will talk to you os and tell okay here are thing i need so here we delicated that task to os now os will do that task so our js program do not have to wait that is know as async io 
+
+libuv abstract why we write file in windows linux and any other os (beacuse all have diffrent way to do so)
+so now we have more acurate module
+
+but how internals works lets talk about that
+
+you can see node js project by going to github
+
+in repo lib folder and src folder
+lib has our js side of node apis. and due to this we have access to all globls in our node app 
+and inside lib we have all these files we have fs, http,process,console that the lib folder
+
+second is src folder which is c++ side with our lo level api bindings
+and it's connection between c++ and js world
+
+so now if we want to open file so it is the part of file system modul
+so in documentation we have function fs.open but where does it live
+and how does it work both make and windows 
+
+in lib folder we have goes to fs.js file then search for open function
+in side in that functoin we have one function buindin.open and here our node js buindings comes in
+this function convert values between js in our fs module to c++ allwing node to write lower level c++ code 
+
+and this function is avalable inside src/node_file.cc  
+it contain both vertions of it async and sync call both
+
+but the moral of the story is that js can not access file system thay what have wrappers in js to access file system and that combile with v8(do normal oprations like 4+4) send command to js engine (and in js we have wrapper functions) that is v8. And to access file when have to write c++ code so there is  modele nude.buindings that that provies that c++ funcitons which access files and that funciton are called inside inside our js wrapper functions in inside c++ wrapper funciton there are uv_fs_open that are lib uv function that is the end layer that hadover tasks to os 
+
+in browder type libuv and you will reaches to official side of libuv
+
+but other languages also have buindings to libuv go to documentation tab and click on others link and go to repo
+and go to buindings so you can see with which languages lib uv has buindings so libuv code stay in different repo on libuv website main page click on show me the code and you will go to its repo and again we have some folders
+
+in side src we have folders of unix and win 
+now lets see the first implementation of fs.open on unix folder. here we find references to unix systems like android-ifaddrs.c(android) and darwin-proctitle.c(mac) 
+but open function functionaliy inside fs.c notice for the 
+api buindings libuv ueses fs.c not c++ so inside the file now you can search for that function which is uv_fs_open
+let go to function definations but here we can see that function is actuly doing any staff to opening and writing file it just calling INIT(OPEN) this a way of calling funciton that lib uv uses but the actual implementation inside function called uv__fs_open this is where actual hard work of opening file and calling down to the oprating system and doing file system opration done and here there is one open funciton that work for linux os system 
+
+and the same implementation we can file inside win folder for windows and also different files for all other windows versions 
+
+
+---------------------------
+what is synchronous and asynchronous
+--------------------------
+what is non-blocking io
+
+JSON.stringify is synchronous function 
+setTimeout is asynchronous function but this is not past of js in react it is part of web api and in case of node it past of nodejs.api. from global in node and in browser it comes form window object 
+
+-----------------------------------
+multi threads (see photo 3)
+
+process with multiple core are more powerful
+to take advantage of multi core we have to use threads
+
+but what is threads 
+1 process have code. 
+                code has 2 functions
+                func1(){ secondFunc()}
+                func2(){ return 42}
+                 
+                new Thread(firstFun1()) this create new thread which has it's own call stack, which is the internal part of thread
+                new Thread(firstFun1())
+
+                so here it created 2 thread and these two thread runs async and all function get pushed inside call stack first firstfunction get pushed in first thread and it internally call fun2 so fun2 get pushed in to call stack while simultaniously same thing accure with thread 2
+
+                but all threads run asynchronously 
+
+                assume if you have multiple core in your cpu then each core is responsible for managing one thread and now days it can have two threads as well
+
+                like vs code has threads like bowser can have threads
+                but for multi threading your program should support multi threading
+
+                multi threading is difficult to manage specially in the languages like c++ and java
+                over there you should have understading of mutual exclusivity and blocks and these make your code and data inside the code synchronous between all the threads so that they can work for common objective
+
+                doing this can be extremly complicated when you got dead lock(where flew thread are stuck waiting for the action that never accured) avoiding dead lock that even experience programmers also struggles
+
+in js libuv's one part is event loop
+
+(see photo 4 5) 
+
+lib uv handles asynchronous I/OPEN
+1) file system
+2) network
+
+and async funs put in event loop and give you output once it's done 
+
+network task) directly done with your oprating system
+file system task) done in side thread pool(group of threads)
+
+so there are main thread that executing v8 and event loop and there are flew threads four by default that are ready and waiting in are thread pull each thread handles 1 task a time so we have limited set of threads 
+and once output is done weatch from thread of os it notify to event loop and it quickly execute any callback and that allow node to run async tasks
+
+and it try to use thread less then os because sometimes it can be hard to manage to it give task to os and os distibute task to appropreate component like network opration goes to network
+
+-----------------------------------
+how event loop works 
+
+while(!shouldExit){
+    processEvents();
+}
+
+and event loop put all callbacks into call back queue 
+
+so when opration finish form os or thread event loop 
+put it inside callback queue 
+
+and when our main thread get completed event loop
+get notified and again put it inside mainthread call stack to be executed
+
+and with os and thread it only complete i/o opration for task to be executad it again come to the main thread's call stack by evnet loop from callback queue(fcfs)
+
+Event loop phases each phase has it's own que
+Timers (has timer queue)
+I/O callbacks (has i/o queue or pol queue)(network and i/o)
+setImmediate (setImmediate try to execute as soon as posible inside event loop after I/O call back's queue done so it is little diff then setTimeout or setInterval these both executed in first phase)
+Close callbacks
+
+in first phase
+Timers - call backs in timer callback queue
+I/O - call backs in 
+setImmediate -
+close Callbacks - when you close file or network connections
+
+and once this cycle finishes it begin again 
+-------------------------------------
+where to use node
+
+js -> os -> cpu -to network card or hard drive
+
+node is not good at video processing or machine learning
+these are blocking tasks
+
+node is good at i/o optation like streaming sending videos
+file form a database of videos to a users web browser
+
+so it is not good at while perfoming opration on file 
+
+--------------------------------------------------------
+
+what is observer design pattern 
+
+Event          observer
+    subject   - observer
+               observer
+
+so observer subscribe the event from selebrity (subject) which they are intrested in. so when subject get event 
+it give update to all observer as longest that observer is 
+subscribe to that subject. now each observer can react that
+event whatever way they want   
+
+to use this observer patten in node js we use events module
+
+and we do that with EventEmitter class
+now we have one program that you can seen in this folder only
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
