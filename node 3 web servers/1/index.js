@@ -1,0 +1,3 @@
+// see photo 1
+// http/https protocol is given to server as representation of port no if http is 80 and https is 443
+// and we do not need to worry about dns because that is being done by browser and when borwser sends request to server it will do dns lookup and then it will send ip address of that web site and do further processing and store it in dns cache and after onwords if same site is being sent again it will not do dns lookup again and will fetch from cache
