@@ -13,19 +13,31 @@ const fs = require("fs");
 
 const results = [];
 
+function isHabitablePlanet(planet) {
+    return (
+        planet["koi_disposition"] === "CONFIRMED" &&
+        planet["koi_insol"] > 0.36 &&
+        planet["koi_insol"] < 1.11 &&
+        planet["koi_prad"] < 1.6
+    );
+}
+
 fs.createReadStream("kepler_data.csv") // so this funciton is reading row data form file in form of bits and bytes but still we need to parse it to see human readable data
   .pipe(parse({
     comment:"#", //line start with # that is comments
     columns:true // this will return each row array of objects in js file with key value pare
   }))
   .on("data", async function (data) {
-    results.push(data); // here we get buffer of data and node uses it to represent as collection of bytes
+    if(isHabitablePlanet(data)){
+        results.push(data); // here we get buffer of data and node uses it to represent as collection of bytes
+    }
   })
   .on("error", function (err) {
     console.log(err);
   })
   .on("end", function () {
-    console.log(results);
+    console.log(results.map(result => result["kepler_name"]));
+    console.log(results.length+"habitable planets found");
     console.log("done");
   }); //Note : right now values are comming as buffer but we want it to parse as comma seperated values that the functionality that parse function give us from csv-parse package. now want is the bast approach to do so. beacuse the parse function is designed to be used with streams so we can pipe the output of our file so we can pipe function and pasing the result of parse() function like .pipe(parse())
   //pipe function is meat to connect readable stream sorce to writable stream destination
