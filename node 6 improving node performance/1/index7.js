@@ -121,4 +121,69 @@
 
 // worker threads
 // the worker threads module enables the use to threads that execute javascript code in parallel
-// workers (threads) are useful for performing CPU-intensive oprations in parallel.
+// workers (threads) are useful for performing CPU-intensive oprations in parallel. those opration otherwise block our code (io and network releted task)
+
+//does not our js code on single thread. worker thread do not change how node work at core. but they do add somting new. it make node as multi threaded language but not exactly. js as language does not have multithreading feature that wont change. so what is the difference between them. 
+
+// worker thread in node is based on the web worker that are available in your browser with the web worker api. web worker help you to run a peace of code from your browser in worker thread but in node there is more recent feture that is still evolving as we speak. worker thread is introduce as shini new feature of v8 called v8 isolated. v8 isolate are isoleted instances of v8 engine you can see as senboxes which are runing js code indipendently. worker thread use these isoletes to create new threads that can execute your js code side by side. with each v8 isolate handling js code for one thread. worker thread just like clusters help us to take advantage of multiple cpu processors in our machine so worker thread ane similer to clusters. but they do things very diffrently cluster module uses processes while worker threads uses these v8 isolate. but how does this diffrence affect us? 
+
+//diffrence between cluster and worker thread
+
+// cluster
+// cluster module allows us to start server which creates then master process that can use the fork() function to create child processes or worker process which can do things like respond the requests of your server and you can call fork() hower many time you like
+// cluter module allowing use to run multiple instance of node in seperate process
+
+// worker thread
+// here when we run our js file we create main thread this thread then can use worker constructor to create a worker thread by calling new on the worker constructor and just like fork() function we can create as many thread we want 
+// but worker thread allwing use to run multiple instances of node in same process by taking advantage of v8 isolate feture
+
+// so flow to create worker thread both the way is almost same
+
+//Note - you may have noticed that with the worker thread example i am not calling my main file as server.js i have taker it as index.js this is to highlight the difference that each worker thread here is not design to share request comming into server. the worker thread module does not include any build in functionality to run a server on a one port and distribute request between each thread. No that specific to cluster module. so we could a run server using worker thread but we have to implement the distribution of work by ourself. here is the main difference unlike processes maid with cluster module worker threads can share memory. with each other. 
+
+// worker thread approach is not roack sold as cluster approach with multiple processes i highly recommend you to use cluster module in production. but what make worker thread so exciting but there are lot of potential behind how they can be used 
+
+// how to use worker thread
+
+const {Worker,isMainThread}=require("worker_threads")
+//similarly like cluster here in worker thread also we can check that we are in main thread or not by using isMainThread
+ 
+//new Worker(__filename);//this constructor will take a string as file name and that js code will be executed in that worker so we are passing current file name. so this code will create woker again and again until our machine no longer create new one. so one thing we want to do here that we want to create worker if we are in main thread when we run thread.js for the first time
+
+if(isMainThread){// so here it will create only two worker but both with the ability wo run our worker code parallel(else block code) 
+    new Worker(__filename);
+    new Worker(__filename);
+    console.log("main thread process Id",process.pid);
+}else{
+    console.log("worker process Id",process.pid);
+    
+}
+
+// but now let demonstrate how worker thread are diffrent from processes. remember worker thread are all part of the same process. unlike cluster we run node multiple times in one process. so if here we print process id with process.pid and we do the same thing for our main thread so here we like to see three process ids like our cluster module but here our main thread share it's process id with worker thread
+
+// output
+// main thread process Id  1343
+// worker process Id  1343
+// worker process Id  1343
+
+//---------------------------------------------------------------
+//now let's give some tasks to our worker thread to do paraler to other threads
+const {Worker,isMainThread,workerData}=require("worker_threads")
+
+if(isMainThread){// so here it will create only two worker but both with the ability wo run our worker code parallel(else block code) 
+    new Worker(__filename,{
+        workerData:[4,5,45,3,32,4,3]
+    });
+    new Worker(__filename,{
+        workerData:[4,5,45,3,32,4,3]// now this workerData will be avalable in worker thread inside of this wokerData value of variable so you can import if on top because now it's part of our worker thread moudle
+    });
+    console.log("main thread process Id",process.pid);
+}else{
+    console.log("worker process Id",process.pid);
+    console.log(workerData.short());// now here we can short that inside our worker thread(because i have maltiple processors in my machine the two diffrent array that i pass in that can be sorted in parallel) so it does not block our main thread
+    
+} 
+
+// so do you remmember that .short() opration on array was blocking so we want to short some diffrent array in diffrent thered to take advantage of the multiple cpu pocessors on my maching we can send work form our main thread to our worker thread by using the second parameter in our worker constructor.
+
+//by using the worker thread we can multiply the effictiveness of our cpu my taking and advantage of it's multiple processors. processors which can run each in parallel. and because we are using worker thread module all of this happens inside one porcess most effecient way posible.
