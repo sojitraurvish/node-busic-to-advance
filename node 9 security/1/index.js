@@ -1,59 +1,49 @@
-// when we connect our mogodb with node app
-// it require to pass some parameters which are 
-//{// to avoid warning
-// useNewUrlParser: true, // this true mean we want part the mongo url which we are passing
-// useFindAndModify: false //this disable the outdated way of updating data using this find and modify function
-// useCreateIndex: true // which will use this CreateIndex function rather than older sure index function
-// useUnifiedTopology: true// this way mogoose will use  the updated way of talking to clusters of mongo databases using this unified topology approach
-// }
+//https ssl/tls protocol
 
-// all of this these are options in mogodb driver that mongo uses to connect to our databases
+// tls is the newer verion of this protocol
 
-// but how do we check that our connection is working our mogose object expose one poperty which is this
+//ssl1.0, ssl2.0, ssl3.0,tls1.0 .... and so on
 
-// mogoose.connection// this connection is event emitor which emmit event once connection is ready or connection is suceess or there is an error
+//http + ssl or tls
+//https
 
-//mogoose.connection.on('open', () => {
-//  console.log('Mongo Db conneciton is ready');})
+//digital certificate
+// free certificate letsencrypt.org
+//give you free certificate
+// but if you have domain and it can allow if ip is somewhere and domain is somewhere
 
-// here we know that our open event only get triggered once but we can use .once (this feature is all node event emiter have) which allows this 'open' event to trigger this call back only once the first time it executed
-// mogoose.connection.once('open', () => {
-//  console.log('Mongo Db conneciton is ready');})
+// and that way we use salf signed certificate
 
-// now we do not know when our error get triggered and deffinately more then once
-//mogoose.connection.on('error', (error) => {
-//  console.error(error);  
+// how to tell our node server respond to https reequest
+
+//app.get("/secret",(req,res)=>{
+// return res.send('your presonal secrent is 42')
 //})
 
-// and we can put these event handler any whare in file befere of after starting server
+// now to make this data encrypted so no one can see it
+// see photo 1, 2 how to do it 
+
+// helmet add some impotent headers and it add lot of meddleware that you can see on it's package
+// it is individul video so you can watch individually
+
+//authentication 401 anautohrized-> use is who he calm to be
+//authorization 403 forbidden-> user have permission to do that
 
 
-//mogoose.model("Launch",lanchSchema)
+// there are three tool that developer uses to make three api secure
+// so that only authorized user can access that server and it's api
+// some time we restrict access with api key, auth token, and some tim we also use jwt tokens
 
-//Launch should be singular name that this model represent mogoose then take that what you pass on make it lower case it make it prular  like "launches"
+// let start with api key we use it for two perpose
+// is unique identifire for your applicaiton so that that your sever knows that from which application your request came from   
+// restrict access of some apis ->  and also if server want to rate limit to your api 
 
-// instead of mongo create function this save data
-// we use insert + update = upsert
-// but in upsert update part only done if data exists
+//jwt is access token and this is also know as bearer auth
+//other type of access token is opack token follows some formate that not understood by server to validate these kind of token our api request to other servers that server issued that token 
 
+// {
+//     "sub":""//subejt identifire who have created it
+//     "iat":""//time and date when token was issued
+// }
 
-// find({})
-// find({name:"urvish"})
-// find({name:"urvish"},"-fname name")//second string is projection 
-// find({name:"urvish"},{'_id':0,'__v':0})//second object is projection 
-
-
-//upsert so instead of create use this
-// updateOne({name:"urvish"},{name:"urvish update"})
-// by default updateOne will use find (first object fined that filed) and update (seconde object update it) function 
-// but we can use updateOne({name:"urvish"},{name:"urvish update"},{upsert:true})//this is what upsert now as first object it check that document exists if it exists then update do not do any thing or if does not exist then it will create or insert new one (with second object)
-
-// findOne({name:"urvish"}).sort('flightNumber') ascending
-// findOne({name:"urvish"}).sort('-flightNumber') descending
-
- // when we use upsert it send us one flag $setOnInsert":{"__v":0} so why send more info fo r hackers so instead of updateOne use findOneAndUpdate now it will not send that extra property but 
-
-//  Note updateOne without upsert gives back lot of metadata like .ok for opration successed or not for update
-
-// jest video 32 33 in database section tast case for our mogoose database and watch vides for test and also do not forget to watch versioning test in space x module 4 video
-
+// oauth oauth2
