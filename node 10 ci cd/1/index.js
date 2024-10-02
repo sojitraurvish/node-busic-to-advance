@@ -269,4 +269,4 @@
 //Now, when our tests connect to our fresh mongo database, they will also load in the planents data so that when we create a new lauch wiht some valid targets, that target will match one of the loaded planets. and no error will be triggered. let see we are wright or wrong and let's push thsi code.
 
 // still our tests fails, this time, our client tests are failing because we did not create any front end tests. and our test commad is expecting at leat one test for that step to succed. what we can do is follow the instructions right here. we will pass this flag passed with no tests into our npm test command in our client folder in the package.json we say
-// "test":"react-scripts test --passWithNoTests" let's see if this fixes our tests for a good. and now it got succesfull.
+// "test":"react-scripts test --passWithNoTests" let's see if this fixes our tests for a good. and now it got succesfull.  
